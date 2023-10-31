@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/amillerrr/htmx-todo-app/config"
 	"github.com/amillerrr/htmx-todo-app/db"
@@ -32,12 +31,12 @@ func main() {
 
 	db.CreateMySqlConnection(config.GetValue("DB_NAME"))
 
-	var PORT string = os.Getenv("PORT")
+	// var PORT string = os.Getenv("PORT")
 
-	if PORT == "" {
-		PORT = DEFAULT_PORT
-	}
+	// if PORT == "" {
+	// 	PORT = DEFAULT_PORT
+	// }
 
-	app.Listen(fmt.Sprintf(":%s", PORT))
+	app.Listen(fmt.Sprintf(":%s", DEFAULT_PORT))
 
 }
