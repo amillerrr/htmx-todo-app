@@ -16,10 +16,10 @@ type EnvVars struct {
 }
 
 func LoadEnv() EnvVars {
-	// load the .env file
-	err := godotenv.Load(".env")
+	// load the environment variables
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file\n")
+		log.Fatalf("Error loading environment variables\n")
 	}
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
@@ -38,9 +38,9 @@ func LoadEnv() EnvVars {
 
 func GetValue(key string) string {
 	// load the .env file
-	err := godotenv.Load(".env")
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file\n")
+		log.Fatalf("Error loading environment variable\n")
 	}
 
 	// return the value based on a given key
