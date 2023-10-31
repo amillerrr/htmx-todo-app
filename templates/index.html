@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="author" content="Andrew Miller">
+        <meta name="description" content="Testing out todo with htmx">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Simple To-Do App</title>
+        <script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous" type="text/javascript"></script>
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@3.7.7/dist/full.css" rel="stylesheet" type="text/css" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/templates/css/style.css" type="text/css">
+    </head>
+    <body class="container max-w-xl mx-auto">
+        <h1>Simple To-Do App</h1>
+        <hr>
+
+        <form class="grid grid-cols-7 m-4 gap-2">
+            <input class="col-span-5 input input-bordered" type="text" name="todo" />
+            <button class="btn btn-accent col-span-2"
+                hx-post="/create"
+                hx-target="#todos"
+                hx-swap="innerHTML">
+                Create Todo
+            </button>
+        </form>
+        
+    
+    </body>
+</html>
