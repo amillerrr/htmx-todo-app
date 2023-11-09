@@ -1,4 +1,4 @@
-FROM golang:1.21.4-buster AS build
+FROM golang:1.21.4-bookworm AS build
 
 WORKDIR /app
 
