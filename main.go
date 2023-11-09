@@ -1,42 +1,24 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"net/http"
 
-	"github.com/amillerrr/htmx-todo-app/config"
-	"github.com/amillerrr/htmx-todo-app/db"
-	"github.com/amillerrr/htmx-todo-app/routes"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/template/html/v2"
+	"github.com/amillerrr/htmx-todo-app/handlers"
+	"github.com/gorilla/mux"
 )
 
-const DEFAULT_PORT = "3000"
-
-func NewFiberApp() *fiber.App {
-	// Create a new engine
-	engine := html.New("./templates", ".html")
-
-	var app *fiber.App = fiber.New(fiber.Config{
-		Views: engine,
-	})
-
-	routes.SetupRoutes(app)
-	return app
-}
-
 func main() {
-	// create a fiber application
-	var app *fiber.App = NewFiberApp()
+	mux := mux.NewRouter()
 
-	db.CreateMySqlConnection(config.GetValue("DB_NAME"))
+	mux.HandleFunc("/todos", handlers.Index)
+	mux.HandleFunc("/todos/{id}", handlers.MarkDone).Methods("PUT")
+	mux.HandleFunc("/todos/{id}", handlers.DeleteTodo).Methods("DELETE")
+	mux.HandleFunc("/todos/create", handlers.CreateTodo).Methods("POST")
 
-	// var PORT string = os.Getenv("PORT")
-
-	// if PORT == "" {
-	// 	PORT = DEFAULT_PORT
-	// }
-
-	app.Listen(fmt.Sprintf(":%s", DEFAULT_PORT))
-
+	log.Fatal(http.ListenAndServe(":3000", mux))
 }
+
+// func index(w http.ResponseWriter, r *http.Request) {
+// 	http.Redirect(w, r, "/todos", http.StatusSeeOther)
+// }

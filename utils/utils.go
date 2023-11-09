@@ -1,4 +1,4 @@
-package config
+package utils
 
 import (
 	"log"
@@ -36,8 +36,9 @@ func LoadEnv() EnvVars {
 	}
 }
 
+// GetValue returns configuration value based on a given key from environment variables
 func GetValue(key string) string {
-	// load the .env file
+	// load the environment variables
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading environment variable\n")

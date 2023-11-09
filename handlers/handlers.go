@@ -1,125 +1,83 @@
 package handlers
 
 import (
-	"strconv"
+	"fmt"
+	"net/http"
+	"text/template"
 
-	"github.com/amillerrr/htmx-todo-app/models"
-
-	"github.com/gofiber/fiber/v2"
+	"github.com/amillerrr/htmx-todo-app/services"
+	"github.com/gorilla/mux"
 )
 
-type TodoHandler struct {
-	Storage *models.TodoStorage
-}
+func sendTodos(w http.ResponseWriter) {
 
-func NewTodoHandler(storage *models.TodoStorage) *TodoHandler {
-	return &TodoHandler{Storage: storage}
-}
-
-type createTodoRequest struct {
-	Todo string `json:"todo"`
-}
-
-type createTodoResponse struct {
-	// Id int `json:"id"`
-}
-
-func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
-	// get the request body
-	var body createTodoRequest
-	err := c.BodyParser(&body)
+	todos, err := services.GetAllTodos()
 	if err != nil {
-		return err
+		fmt.Println("Could not get all todos from db", err)
+		return
 	}
 
-	// create the todo
-	err = h.Storage.CreateTodo(models.NewTodoInput{
-		Todo: body.Todo,
-	})
+	tmpl := template.Must(template.ParseFiles("templates/index.html"))
+
+	err = tmpl.ExecuteTemplate(w, "Todos", todos)
 	if err != nil {
-		return err
+		fmt.Println("Could not execute template", err)
 	}
-
-	// send the id
-	resp := createTodoResponse{}
-
-	return c.JSON(resp)
 }
 
-type fetchOneTodoReponse struct {
-	Todo models.Todo_DB `json:"todo"`
-}
+func Index(w http.ResponseWriter, r *http.Request) {
 
-func (h *TodoHandler) FetchTodo(c *fiber.Ctx) error {
-	// get the todo
-	todos := models.Todo_DB{}
-	todo, err := h.Storage.GetTodo(todos.Id)
+	todos, err := services.GetAllTodos()
 	if err != nil {
-		return err
+		fmt.Println("Could not get all todos from db", err)
 	}
 
-	// send response
-	resp := fetchOneTodoReponse{
-		Todo: todo,
-	}
+	tmpl := template.Must(template.ParseFiles("templates/index.html"))
 
-	return c.JSON(resp)
-}
-
-type fetchTodosRepsonse struct {
-	Todos []models.Todo_DB `json:"todos"`
-}
-
-func (h *TodoHandler) FetchTodos(c *fiber.Ctx) error {
-	// get the todos
-	todos, err := h.Storage.GetAllTodos()
+	err = tmpl.Execute(w, todos)
 	if err != nil {
-		return err
+		fmt.Println("Could not execute template", err)
 	}
 
-	// send Response
-	resp := fetchTodosRepsonse{
-		Todos: todos,
-	}
-	return c.JSON(resp)
 }
 
-type basicResponse struct {
-	Success bool `json:"success"`
+func MarkDone(w http.ResponseWriter, r *http.Request) {
+
+	id := mux.Vars(r)["id"]
+
+	err := services.MarkDone(id)
+	if err != nil {
+		fmt.Println("Could not update todo", err)
+	}
+
+	sendTodos(w)
+
 }
 
-func (h *TodoHandler) MarkDone(c *fiber.Ctx) error {
-	//complete todo
-	todos := models.Todo_DB{}
-	err := h.Storage.MarkDone(todos.Id)
+func CreateTodo(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
 	if err != nil {
-		return err
+		fmt.Println("Error parsing form", err)
 	}
 
-	// send Response
-	resp := basicResponse{
-		Success: true,
+	err = services.CreateTodo(r.FormValue("todo"))
+	if err != nil {
+		fmt.Println("Could not create todo", err)
 	}
 
-	return c.JSON(resp)
+	sendTodos(w)
+
 }
 
-func (h *TodoHandler) DeleteTodo(c *fiber.Ctx) error {
-	// get the id
-	id := c.Params("id")
-	aid, err := strconv.Atoi(id)
+func DeleteTodo(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+
+	err := services.DeleteTodo(id)
 	if err != nil {
-		return err
+		fmt.Println("Could not delete", err)
 	}
 
-	// complete todo
-	err = h.Storage.Delete(aid)
-	if err != nil {
-		return err
-	}
-	// send response
-	resp := basicResponse{
-		Success: true,
-	}
-	return c.JSON(resp)
+	sendTodos(w)
+
 }
